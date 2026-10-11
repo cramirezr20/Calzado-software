@@ -130,7 +130,7 @@ button, a, select { -webkit-tap-highlight-color: transparent; }
 .order-reference span { color: var(--muted); font-size: 10px; }
 .order-reference strong { font-size: 17px; }
 .confirmation-shell .button { margin-top: 8px; }
-.metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.metric-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
 .metric-panel { display: grid; min-height: 134px; align-content: space-between; border: 1px solid var(--line); padding: 17px; background: white; transition: transform .18s ease, border-color .18s ease; }
 .metric-panel:hover { transform: translateY(-2px); border-color: #a7b7aa; }
 .metric-panel > span { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .45px; }
@@ -143,6 +143,7 @@ button, a, select { -webkit-tap-highlight-color: transparent; }
 .dashboard-links section { border-top: 2px solid var(--green); padding-top: 18px; }
 .dashboard-links h2 { margin: 0 0 8px; font-family: var(--font-display); font-size: 23px; }
 .dashboard-links section > p:not(.eyebrow) { max-width: 400px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.title-actions { display: flex; flex-wrap: wrap; gap: 9px; }
 .text-link { display: inline-block; margin: 7px 16px 0 0; color: var(--green); font-size: 11px; font-weight: 700; }
 .text-link:hover { color: var(--rust); }
 .inline-status { display: flex; align-items: center; gap: 6px; }
@@ -213,9 +214,14 @@ button, a, select { -webkit-tap-highlight-color: transparent; }
 @keyframes rise-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 900px) {
     .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metric-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .admin-sidebar { width: 190px; }
     .admin-main { margin-left: 190px; }
     .admin-content { padding-right: 22px; padding-left: 22px; }
+}
+@media (max-width: 820px) {
+    .detail-layout { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+    .detail-image, .detail-placeholder { min-height: 0; aspect-ratio: 1 / .85; }
 }
 @media (max-width: 620px) {
     .store-header { height: 64px; padding: 0 16px; }
@@ -263,6 +269,7 @@ button, a, select { -webkit-tap-highlight-color: transparent; }
     .admin-content { padding: 27px 14px 50px; }
     .admin-title-row { align-items: flex-start; flex-direction: column; }
     .admin-title-row .button { width: 100%; }
+    .title-actions { width: 100%; flex-direction: column; }
     .admin-title-row h1 { font-size: 30px; }
     .product-form { padding: 18px 14px; }
     .form-grid { grid-template-columns: 1fr; }

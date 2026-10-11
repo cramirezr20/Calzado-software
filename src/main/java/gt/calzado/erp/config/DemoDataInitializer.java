@@ -84,31 +84,39 @@ public class DemoDataInitializer implements ApplicationRunner {
 
     private void seedProducts() {
         createProductIfMissing("PASO-DEMO-001", "Tenis Ruta Claro", "Tenis",
-                "Ligero y versátil para el uso diario.", "349.00", 18);
+                "Ligero y versátil para el uso diario.", "349.00", 18,
+                "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=1000&q=85");
         createProductIfMissing("PASO-DEMO-002", "Botín Sendero", "Botines",
-                "Botín de perfil clásico para clima fresco.", "589.00", 12);
+                "Botín de perfil clásico para clima fresco.", "589.00", 12,
+                "https://images.unsplash.com/photo-1608256246200-53e635b5b65f?auto=format&fit=crop&w=1000&q=85");
         createProductIfMissing("PASO-DEMO-003", "Sandalia Brisa", "Sandalias",
-                "Sandalia cómoda para días cálidos.", "219.00", 25);
+                "Sandalia cómoda para días cálidos.", "219.00", 25,
+                "https://images.unsplash.com/photo-1777979926381-46ffc1395cf8?auto=format&fit=crop&w=1000&q=85");
         createProductIfMissing("PASO-DEMO-004", "Zapato Nube", "Formal",
-                "Zapato formal de acabado sobrio.", "429.00", 9);
+                "Zapato formal de acabado sobrio.", "429.00", 9,
+                "https://images.unsplash.com/photo-1552422554-0d5af0c79fc6?auto=format&fit=crop&w=1000&q=85");
         createProductIfMissing("PASO-DEMO-005", "Tenis Campo Verde", "Deportivos",
-                "Tenis de entrenamiento con unidades limitadas.", "379.00", 2);
+                "Tenis de entrenamiento con unidades limitadas.", "379.00", 2,
+                "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=1000&q=85");
     }
 
     private void createProductIfMissing(String sku, String name, String category,
-                                        String description, String price, int stock) {
-        if (products.existsBySkuIgnoreCase(sku)) {
-            return;
+                                        String description, String price, int stock, String imageUrl) {
+        Product product = products.findBySkuIgnoreCase(sku).orElse(null);
+        if (product == null) {
+            product = new Product();
+            product.setSku(sku);
+            product.setName(name);
+            product.setCategory(category);
+            product.setDescription(description);
+            product.setPrice(new BigDecimal(price));
+            product.setStock(stock);
+            product.setActive(true);
         }
-        Product product = new Product();
-        product.setSku(sku);
-        product.setName(name);
-        product.setCategory(category);
-        product.setDescription(description);
-        product.setPrice(new BigDecimal(price));
-        product.setStock(stock);
-        product.setActive(true);
-        products.save(product);
+        if (product.getImageUrl() == null || product.getImageUrl().isBlank()) {
+            product.setImageUrl(imageUrl);
+            products.save(product);
+        }
     }
 
     private void seedCustomers() {
@@ -143,6 +151,25 @@ public class DemoDataInitializer implements ApplicationRunner {
                 new DemoLine("PASO-DEMO-003", 1), new DemoLine("PASO-DEMO-001", 1));
         createOrderIfMissing("PASO-DEMO-1004", "carlos.mendez@example.test", OrderStatus.DELIVERED, 5,
                 new DemoLine("PASO-DEMO-004", 1));
+        createTodayOrderIfMissing();
+    }
+
+    private void createTodayOrderIfMissing() {
+        String orderNumber = "PASO-DEMO-1005";
+        if (orders.existsByOrderNumber(orderNumber)) {
+            return;
+        }
+        Customer customer = customers.findByEmailIgnoreCase("ana.lopez@example.test").orElseThrow();
+        Product product = products.findBySkuIgnoreCase("PASO-DEMO-001").orElseThrow();
+        product.setStock(product.getStock() - 1);
+        SalesOrder order = new SalesOrder();
+        order.setOrderNumber(orderNumber);
+        order.setCustomer(customer);
+        order.setStatus(OrderStatus.RECEIVED);
+        order.setCreatedAt(Instant.now());
+        order.addItem(new OrderItem(product, 1, product.getPrice()));
+        order.setTotal(product.getPrice());
+        orders.save(order);
     }
 
     private void createOrderIfMissing(String orderNumber, String customerEmail,
