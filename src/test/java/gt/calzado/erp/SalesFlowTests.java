@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import gt.calzado.erp.domain.AppUser;
 import gt.calzado.erp.domain.Complaint;
 import gt.calzado.erp.domain.Product;
 import gt.calzado.erp.domain.UserRole;
@@ -52,6 +53,7 @@ class SalesFlowTests {
 
     @Autowired
     private ComplaintRepository complaints;
+
         @Autowired
         private AppUserRepository appUsers;
 
@@ -66,53 +68,79 @@ class SalesFlowTests {
         products.deleteAll();
     }
 
-        @Test
-        void initialAdminIsStoredWithEncodedPasswordAndCanOpenUserManagement() throws Exception {
-                var admin = appUsers.findByUsernameIgnoreCase("user1").orElseThrow();
-                assertEquals(UserRole.ADMIN, admin.getRole());
-                assertNotEquals("Usuario1", admin.getPassword());
-                assertTrue(passwordEncoder.matches("Usuario1", admin.getPassword()));
+    @Test
+    void initialAdminIsStoredWithEncodedPasswordAndCanOpenUserManagement() throws Exception {
+        var admin = appUsers.findByUsernameIgnoreCase("user1").orElseThrow();
+        assertEquals(UserRole.ADMIN, admin.getRole());
+        assertNotEquals("Usuario1", admin.getPassword());
+        assertTrue(passwordEncoder.matches("Usuario1", admin.getPassword()));
 
-                MvcResult login = mockMvc.perform(post("/login")
-                                                .param("username", "user1")
-                                                .param("password", "Usuario1")
-                                                .with(csrf()))
-                                .andExpect(status().is3xxRedirection())
-                                .andReturn();
-                MockHttpSession session = (MockHttpSession) login.getRequest().getSession(false);
-                assertNotNull(session);
+        MvcResult login = mockMvc.perform(post("/login")
+                        .param("username", "user1")
+                        .param("password", "Usuario1")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andReturn();
+        MockHttpSession session = (MockHttpSession) login.getRequest().getSession(false);
+        assertNotNull(session);
 
-                mockMvc.perform(get("/admin/usuarios").session(session))
-                                .andExpect(status().isOk())
-                                .andExpect(content().string(containsString("user1@calzado.local")));
+        mockMvc.perform(get("/admin/usuarios").session(session))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("user1@calzado.local")));
+    }
+
+    @Test
+    void salesCanOpenDashboardAndCreateProductsWhileSupportCannotManageInventory() throws Exception {
+        mockMvc.perform(post("/admin/usuarios/nuevo")
+                        .with(user("user1").roles("ADMIN"))
+                        .param("username", "support-test")
+                        .param("email", "support-test@calzado.local")
+                        .param("fullName", "Soporte de prueba")
+                        .param("password", "SupportPass9")
+                        .param("role", "SUPPORT")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/usuarios"));
+
+        var support = appUsers.findByUsernameIgnoreCase("support-test").orElseThrow();
+        assertTrue(passwordEncoder.matches("SupportPass9", support.getPassword()));
+        AppUser sales = new AppUser();
+        sales.setUsername("sales-test");
+        sales.setEmail("sales-test@calzado.local");
+        sales.setFullName("Ventas de prueba");
+        sales.setPassword(passwordEncoder.encode("SalesPass9"));
+        sales.setRole(UserRole.SALES);
+        appUsers.save(sales);
+        try {
+            mockMvc.perform(get("/admin/reclamos").with(user("support-test").roles("SUPPORT")))
+                    .andExpect(status().isOk());
+            mockMvc.perform(get("/admin/productos").with(user("support-test").roles("SUPPORT")))
+                    .andExpect(status().isForbidden());
+            mockMvc.perform(get("/admin/usuarios").with(user("support-test").roles("SUPPORT")))
+                    .andExpect(status().isForbidden());
+            mockMvc.perform(get("/admin").with(user("sales-test").roles("SALES")))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(containsString("VENTAS DE HOY")));
+            mockMvc.perform(get("/admin/productos/nuevo")
+                            .with(user("sales-test").roles("SALES")))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(containsString("Nuevo producto")));
+            mockMvc.perform(post("/admin/productos/nuevo")
+                            .with(user("sales-test").roles("SALES"))
+                            .param("sku", "SALES-CREATE-01")
+                            .param("name", "Producto creado por ventas")
+                            .param("category", "Tenis")
+                            .param("price", "199.00")
+                            .param("stock", "4")
+                            .with(csrf()))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/admin/productos"));
+            assertTrue(products.existsBySkuIgnoreCase("SALES-CREATE-01"));
+        } finally {
+            appUsers.delete(support);
+            appUsers.delete(sales);
         }
-
-                    @Test
-                    void adminCanCreateStaffAndSupportRoleCannotManageInventory() throws Exception {
-                        mockMvc.perform(post("/admin/usuarios/nuevo")
-                                        .with(user("user1").roles("ADMIN"))
-                                        .param("username", "support-test")
-                                        .param("email", "support-test@calzado.local")
-                                        .param("fullName", "Soporte de prueba")
-                                        .param("password", "SupportPass9")
-                                        .param("role", "SUPPORT")
-                                        .with(csrf()))
-                                .andExpect(status().is3xxRedirection())
-                                .andExpect(redirectedUrl("/admin/usuarios"));
-
-                        var support = appUsers.findByUsernameIgnoreCase("support-test").orElseThrow();
-                        assertTrue(passwordEncoder.matches("SupportPass9", support.getPassword()));
-                        try {
-                            mockMvc.perform(get("/admin/reclamos").with(user("support-test").roles("SUPPORT")))
-                                    .andExpect(status().isOk());
-                            mockMvc.perform(get("/admin/productos").with(user("support-test").roles("SUPPORT")))
-                                    .andExpect(status().isForbidden());
-                            mockMvc.perform(get("/admin/usuarios").with(user("support-test").roles("SUPPORT")))
-                                    .andExpect(status().isForbidden());
-                        } finally {
-                            appUsers.delete(support);
-                        }
-                    }
+    }
 
     @Test
     @Transactional

@@ -18,8 +18,10 @@ public class AdminNavigationAdvice {
                         .map(authority -> authority.getAuthority())
                         .collect(Collectors.toSet());
         boolean admin = roles.contains("ROLE_ADMIN");
-        model.addAttribute("canViewDashboard", admin || roles.contains("ROLE_ANALYST"));
-        model.addAttribute("canViewProducts", admin || roles.contains("ROLE_WAREHOUSE"));
+        model.addAttribute("canViewDashboard", admin || roles.contains("ROLE_SALES")
+                || roles.contains("ROLE_ANALYST"));
+        model.addAttribute("canViewProducts", admin || roles.contains("ROLE_SALES")
+                || roles.contains("ROLE_WAREHOUSE"));
         model.addAttribute("canViewOrders", admin || roles.contains("ROLE_SALES")
                 || roles.contains("ROLE_WAREHOUSE") || roles.contains("ROLE_ANALYST"));
         model.addAttribute("canViewCustomers", admin || roles.contains("ROLE_SALES")
