@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="|${product.name} - Tienda|">Producto | Tienda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="store-page">
+<header class="store-header"><a class="wordmark" th:href="@{/tienda}"><span class="wordmark-mark">P</span><span>PASO<br><small>CALZADO</small></span></a><nav class="store-nav"><a th:href="@{/tienda}">Catálogo</a><a th:href="@{/carrito}">Bolsa</a><a th:href="@{/reclamos/nuevo}">Ayuda</a></nav></header>
+<main class="detail-shell">
+    <a class="back-link" th:href="@{/tienda}">← Catálogo</a>
+    <section class="detail-layout">
+        <div class="detail-image">
+            <img th:if="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}" th:src="${product.imageUrl}" th:alt="${product.name}">
+            <div class="image-placeholder detail-placeholder" th:unless="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}"><span th:text="${product.category}">Calzado</span><b th:text="|PASO / ${#numbers.formatInteger(product.id, 2)}|">PASO / 01</b></div>
+        </div>
+        <div class="detail-copy"><p class="eyebrow" th:text="${product.category}">Categoría</p><h1 th:text="${product.name}">Producto</h1><p class="detail-sku" th:text="|SKU ${product.sku}|">SKU</p><p class="detail-price" th:text="|Q ${#numbers.formatDecimal(product.price, 1, 'COMMA', 2, 'POINT')}|">Q 0.00</p><p class="detail-description" th:text="${product.description != null ? product.description : 'Diseñado para acompañarte todos los días.'}">Descripción</p><p class="availability" th:classappend="${product.stock == 0 ? ' unavailable' : ''}" th:text="${product.stock == 0 ? 'Agotado' : product.stock + ' pares disponibles'}">Disponible</p><div class="notice" th:if="${notice}" th:text="${notice}"></div><div class="notice notice-error" th:if="${cartError}" th:text="${cartError}"></div><form class="buy-form" th:if="${product.stock > 0}" th:action="@{/carrito/agregar/{id}(id=${product.id})}" method="post"><label>Cantidad <input type="number" name="quantity" value="1" min="1" th:attr="max=${product.stock}"></label><button class="button button-dark" type="submit">Agregar a la bolsa</button></form><a class="button button-quiet" th:href="@{/tienda}">Seguir explorando</a></div>
+    </section>
+</main>
+<footer class="store-footer"><span>PASO · CALZADO</span><a th:href="@{/reclamos/nuevo}">Ayuda y reclamos</a><span>Ciudad de Guatemala</span></footer>
+</body>
+</html>

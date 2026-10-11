@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tienda | Calzado</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="store-page">
+<header class="store-header">
+    <a class="wordmark" th:href="@{/tienda}"><span class="wordmark-mark">P</span><span>PASO<br><small>CALZADO</small></span></a>
+    <nav class="store-nav"><a class="active" th:href="@{/tienda}">Tienda</a><a th:href="@{/carrito}">Bolsa</a><a th:href="@{/reclamos/nuevo}">Ayuda</a><a th:href="@{/login}">Personal</a></nav>
+</header>
+<main>
+    <section class="store-hero">
+        <div class="hero-copy">
+            <p class="eyebrow">CALZADO · GUATEMALA</p>
+            <h1>Un buen paso<br><em>lo cambia todo.</em></h1>
+            <p class="hero-intro">Encuentra el par ideal para cada camino.</p>
+            <a class="button button-light" href="#catalogo">Ver catálogo <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="hero-stamp" aria-hidden="true"><span>HECHO PARA<br>SEGUIR ADELANTE</span><b>01</b></div>
+    </section>
+    <section class="catalog-section" id="catalogo">
+        <div class="section-heading">
+            <div><p class="eyebrow">SELECCIÓN ACTUAL</p><h2>Catálogo</h2></div>
+            <span class="result-count" th:text="|${#lists.size(products)} productos|">0 productos</span>
+        </div>
+        <form class="catalog-filters" th:action="@{/tienda}" method="get">
+            <label class="search-field"><span class="visually-hidden">Buscar producto</span><input name="q" type="search" placeholder="Buscar por nombre o SKU" th:value="${query}"><button type="submit" aria-label="Buscar">Buscar</button></label>
+            <label class="category-field"><span class="visually-hidden">Categoría</span><select name="category" onchange="this.form.submit()"><option value="">Todas las categorías</option><option th:each="category : ${categories}" th:value="${category}" th:text="${category}" th:selected="${category == selectedCategory}"></option></select></label>
+        </form>
+        <div class="product-grid" th:if="${!#lists.isEmpty(products)}">
+            <article class="product-card" th:each="product : ${products}">
+                <a class="product-image" th:href="@{/tienda/productos/{id}(id=${product.id})}">
+                    <img th:if="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}" th:src="${product.imageUrl}" th:alt="${product.name}" loading="lazy">
+                    <div class="image-placeholder" th:unless="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}"><span th:text="${product.category}">Calzado</span><b th:text="${#numbers.formatInteger(product.id, 2)}">01</b></div>
+                    <span class="stock-tag" th:if="${product.stock == 0}">Agotado</span>
+                </a>
+                <div class="product-meta"><span th:text="${product.category}">Categoría</span><span th:text="|SKU ${product.sku}|">SKU</span></div>
+                <h3><a th:href="@{/tienda/productos/{id}(id=${product.id})}" th:text="${product.name}">Producto</a></h3>
+                <div class="product-bottom"><strong th:text="|Q ${#numbers.formatDecimal(product.price, 1, 'COMMA', 2, 'POINT')}|">Q 0.00</strong><span th:if="${product.stock > 0}" th:text="|${product.stock} disponibles|">Disponible</span></div>
+                <form class="quick-add" th:if="${product.stock > 0}" th:action="@{/carrito/agregar/{id}(id=${product.id})}" method="post"><input type="hidden" name="quantity" value="1"><button type="submit">Agregar a la bolsa <span aria-hidden="true">+</span></button></form>
+            </article>
+        </div>
+        <div class="empty-state" th:if="${#lists.isEmpty(products)}"><span class="empty-mark">P</span><h3>Aún no hay productos en esta selección.</h3><p>Prueba otra búsqueda o vuelve más tarde.</p></div>
+    </section>
+</main>
+<footer class="store-footer"><span>PASO · CALZADO</span><a th:href="@{/reclamos/nuevo}">Ayuda y reclamos</a><span>Ciudad de Guatemala</span></footer>
+</body>
+</html>

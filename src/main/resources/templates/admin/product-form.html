@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title th:text="${formTitle}">Producto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"><link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="admin-page">
+<aside th:replace="~{admin/fragments :: sidebar('products')}"></aside>
+<main class="admin-main"><header class="admin-topbar"><span>Inventario / <a th:href="@{/admin/productos}">Productos</a> / <span th:text="${formTitle}">Producto</span></span><span class="admin-user"><i></i> Administrador</span></header><section class="admin-content form-content">
+    <a class="back-link" th:href="@{/admin/productos}">← Volver a productos</a><div class="admin-title-row"><div><p class="eyebrow">CATÁLOGO E INVENTARIO</p><h1 th:text="${formTitle}">Producto</h1></div></div>
+    <form class="product-form" th:object="${product}" th:action="${formAction}" method="post">
+        <div class="form-grid"><label>SKU <input th:field="*{sku}" maxlength="40" autocomplete="off" required><small class="field-error" th:errors="*{sku}"></small></label><label>Nombre <input th:field="*{name}" maxlength="120" required><small class="field-error" th:errors="*{name}"></small></label><label>Categoría <input th:field="*{category}" maxlength="80" placeholder="Tenis, sandalias…" required><small class="field-error" th:errors="*{category}"></small></label><label>Precio (Q) <input th:field="*{price}" type="number" min="0.01" step="0.01" required><small class="field-error" th:errors="*{price}"></small></label><label>Existencia <input th:field="*{stock}" type="number" min="0" step="1" required><small class="field-error" th:errors="*{stock}"></small></label><label>Imagen del producto (URL) <input th:field="*{imageUrl}" type="url" maxlength="500" placeholder="https://…"><small class="field-error" th:errors="*{imageUrl}"></small></label><label class="form-span">Descripción <textarea th:field="*{description}" maxlength="1200" rows="4"></textarea><small class="field-error" th:errors="*{description}"></small></label><label class="checkbox-field" th:if="${product.id != null}"><input th:field="*{active}" type="checkbox"> Publicado en la tienda</label></div>
+        <div class="form-actions"><a class="button button-quiet" th:href="@{/admin/productos}">Cancelar</a><button class="button button-dark" type="submit">Guardar producto</button></div>
+    </form>
+</section></main>
+</body>
+</html>

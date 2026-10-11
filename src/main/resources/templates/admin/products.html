@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Productos | Administración</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="admin-page">
+<aside th:replace="~{admin/fragments :: sidebar('products')}"></aside>
+<main class="admin-main"><header class="admin-topbar"><span>Inventario / Productos</span><span class="admin-user"><i></i> Administrador</span></header><section class="admin-content">
+    <div class="admin-title-row"><div><p class="eyebrow">CATÁLOGO E INVENTARIO</p><h1>Productos</h1><p class="page-description">Administra el catálogo que ven tus clientes y la disponibilidad en bodega.</p></div><a class="button button-dark" th:href="@{/admin/productos/nuevo}"><span aria-hidden="true">＋</span> Nuevo producto</a></div>
+    <div class="notice" th:if="${notice}" th:text="${notice}"></div>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>Producto</th><th>SKU</th><th>Categoría</th><th>Precio</th><th>Existencia</th><th>Estado</th><th><span class="visually-hidden">Acciones</span></th></tr></thead><tbody>
+    <tr th:each="product : ${products}"><td><div class="table-product"><img th:if="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}" th:src="${product.imageUrl}" th:alt="''"><span class="table-product-placeholder" th:unless="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}" th:text="${#strings.substring(product.name, 0, 1)}">P</span><strong th:text="${product.name}">Producto</strong></div></td><td th:text="${product.sku}">SKU</td><td th:text="${product.category}">Categoría</td><td th:text="|Q ${#numbers.formatDecimal(product.price, 1, 'COMMA', 2, 'POINT')}|">Q 0.00</td><td><span class="stock-value" th:classappend="${product.stock < 5 ? ' low-stock' : ''}" th:text="${product.stock}">0</span></td><td><span class="status-pill" th:classappend="${product.active ? ' is-active' : ' is-inactive'}" th:text="${product.active ? 'Activo' : 'Inactivo'}">Activo</span></td><td class="row-actions"><a class="icon-action" th:href="@{/admin/productos/{id}/editar(id=${product.id})}" th:attr="aria-label=|Editar ${product.name}|" title="Editar">Editar</a><form th:if="${product.active}" th:action="@{/admin/productos/{id}/desactivar(id=${product.id})}" method="post"><button class="text-action" type="submit">Desactivar</button></form></td></tr>
+    <tr th:if="${#lists.isEmpty(products)}"><td colspan="7"><div class="table-empty"><span>Sin productos</span><p>Agrega el primer artículo para publicarlo en la tienda.</p></div></td></tr>
+    </tbody></table></div>
+</section></main>
+</body>
+</html>

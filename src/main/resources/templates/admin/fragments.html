@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="admin-sidebar" th:fragment="sidebar(activeSection)">
+    <a class="admin-brand" th:href="@{/admin}"><span class="wordmark-mark">P</span><span>PASO<small>ERP · CALZADO</small></span></a>
+    <p class="sidebar-label">OPERACIÓN</p>
+    <a class="sidebar-link" th:if="${canViewDashboard}" th:classappend="${activeSection == 'dashboard' ? ' selected' : ''}" th:href="@{/admin}"><span>⌂</span> Resumen</a>
+    <a class="sidebar-link" th:if="${canViewProducts}" th:classappend="${activeSection == 'products' ? ' selected' : ''}" th:href="@{/admin/productos}"><span>▦</span> Productos</a>
+    <a class="sidebar-link" th:if="${canViewOrders}" th:classappend="${activeSection == 'orders' ? ' selected' : ''}" th:href="@{/admin/pedidos}"><span>↗</span> Pedidos</a>
+    <a class="sidebar-link" th:if="${canViewCustomers}" th:classappend="${activeSection == 'customers' ? ' selected' : ''}" th:href="@{/admin/clientes}"><span>♙</span> Clientes</a>
+    <a class="sidebar-link" th:if="${canViewComplaints}" th:classappend="${activeSection == 'complaints' ? ' selected' : ''}" th:href="@{/admin/reclamos}"><span>☷</span> Reclamos</a>
+    <a class="sidebar-link" th:if="${canManageUsers}" th:classappend="${activeSection == 'users' ? ' selected' : ''}" th:href="@{/admin/usuarios}"><span>♧</span> Usuarios</a>
+    <a class="sidebar-link" th:href="@{/tienda}"><span>↗</span> Ver tienda</a>
+    <div class="sidebar-bottom"><span>Sesión de administración</span><form th:action="@{/logout}" method="post"><button class="logout-button" type="submit">Cerrar sesión</button></form></div>
+</aside>
+</body>
+</html>
